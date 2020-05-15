@@ -45,8 +45,16 @@ function LinkShortener() {
   const [link, setLink] = useState(null);
   let formSubmit = (event) => {
     event.preventDefault();
-    console.log(`URL: ${url}`);
-    setLink(url);
+    const requestOptions = {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fullURL: url }),
+    };
+    fetch(
+      "https://localhost:5001/api/Link/AddLink",
+      requestOptions
+    ).then((data) => setLink(`https://localhost:5001/api/Link/${data.link}`));
   };
   return (
     <div className="link-shortener-wrapper">

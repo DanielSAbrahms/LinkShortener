@@ -33,18 +33,16 @@ namespace LinkShortener.API.Controllers
             return linkBundles;
         }
 
-        //[HttpGet]
-        //[Route("{hashLink}?")]
-        //public ActionResult<Dictionary<string, LinkBundles>> RedirectFromLink()
-        //{
-        //    var link = _services.GetLinkFromURL();
-
-        //    if (links.Count == 0)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return links;
-        //}
+        /*
+         * This controller handles any local url that isn't /AddLink
+         * It uses a 301 Permenant redirect to tell the browser where to go
+         */
+        [HttpGet]
+        [Route("{hashLink?}")]
+        public ActionResult<Dictionary<string, LinkBundles>> RedirectFromLink(string? hashLink)
+        {
+            var url = _services.GetURLFromLink(hashLink);
+            return RedirectPermanent(url);
+        }
     }
 }

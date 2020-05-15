@@ -15,7 +15,7 @@ namespace LinkShortener.API.Services
             _linkBundles = new Dictionary<string, LinkBundles>();
         }
 
-        public LinkBundles SubmitURL(String url)
+        public LinkBundles SubmitURL(string url)
         {
             // If Submitted URL doesn't already exist, add to dictionary
             var currentLinks = GetLinks();
@@ -33,9 +33,14 @@ namespace LinkShortener.API.Services
             }
         }
 
-        public int GetLinkFromURL(String url)
+        public string GetLinkFromURL(string url)
         {
             return _linkBundles[url].Link;
+        }
+
+        public string GetURLFromLink(string link)
+        {
+            return _linkBundles.FirstOrDefault(l => l.Value.Link == link).Key;
         }
 
         private Dictionary<string, LinkBundles> GetLinks()
@@ -43,14 +48,15 @@ namespace LinkShortener.API.Services
             return _linkBundles;
         }
 
-        private LinkBundles AddURL(String url)
+        private LinkBundles AddURL(string url)
         {
             // Create a new LinkBundles Object with the Link as HashCode for the URL
+            // Not a good solution due to GetHashCode being platform dependent -> will look for alternative
             LinkBundles newLinkBundle = new LinkBundles
             {
                 FullURL = url,
-                Link = url.GetHashCode()
-        };
+                Link = string.Format("{0:X}", url.GetHashCode())
+            };
             _linkBundles.Add(newLinkBundle.FullURL, newLinkBundle);
 
             return newLinkBundle;

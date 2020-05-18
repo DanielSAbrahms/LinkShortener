@@ -16,11 +16,13 @@ namespace LinkShortener
         {
             services.AddControllers();
             services.AddSingleton<ILinkServices, LinkServices>();
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -35,6 +37,12 @@ namespace LinkShortener
             app.UseRouting();
 
             // app.UseAuthorization();
+
+            app.UseCors(builder => builder
+                .WithOrigins("http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .WithHeaders("Accept", "Content-Type", "Origin", "X-My-Header"));
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,6 +1,5 @@
-import TextField from "@material-ui/core/TextField";
 import { useState } from "react";
-import { Button, Paper } from "@material-ui/core";
+import { Button, Paper, TextField, CircularProgress } from "@material-ui/core";
 
 function URLForm(props) {
   return (
@@ -12,6 +11,7 @@ function URLForm(props) {
           variant="outlined"
           onChange={props.onURLChange}
           fullWidth
+          xs={12}
         />
         <Button
           className="url-form-submit-button"
@@ -19,6 +19,7 @@ function URLForm(props) {
           value="Submit"
           variant="outlined"
           color="primary"
+          xs={6}
         >
           Submit
         </Button>
@@ -41,20 +42,23 @@ function LinkResult(props) {
 }
 
 function LinkShortener() {
+  let loading = false;
   const [url, setURL] = useState("");
   const [link, setLink] = useState(null);
   let formSubmit = (event) => {
+    loading = true;
     event.preventDefault();
     const requestOptions = {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullURL: url }),
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify({ FullURL: url }),
     };
-    fetch(
-      "https://localhost:5001/api/Link/AddLink",
-      requestOptions
-    ).then((data) => setLink(`https://localhost:5001/api/Link/${data.link}`));
+    fetch("https://localhost:5001/api/Link/AddLink", requestOptions)
+      .then((res) => res.json())
+      .then((data) => {
+        loading = false;
+        setLink(data.shortURL);
+      });
   };
   return (
     <div className="link-shortener-wrapper">
@@ -62,7 +66,11 @@ function LinkShortener() {
         onFormSubmit={formSubmit}
         onURLChange={(event) => setURL(event.target.value)}
       />
-      {link ? <LinkResult link={link} /> : null}
+      {loading ? (
+        <CircularProgress />
+      ) : link ? (
+        <LinkResult link={link} />
+      ) : null}
     </div>
   );
 }

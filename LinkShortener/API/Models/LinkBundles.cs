@@ -7,7 +7,9 @@ namespace LinkShortener.API.Models
 {
     public class LinkBundles
     {
+        public Guid Id { get; set; }
         public string FullURL { get; set; }
-        public string? Link { get; set; }
+        public string ShortURL { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

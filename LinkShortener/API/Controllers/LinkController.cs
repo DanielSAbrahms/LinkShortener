@@ -41,8 +41,15 @@ namespace LinkShortener.API.Controllers
         [Route("{hashLink?}")]
         public ActionResult<Dictionary<string, LinkBundles>> RedirectFromLink(string? hashLink)
         {
-            var url = _services.GetURLFromLink(hashLink);
-            return RedirectPermanent(url);
+            var url = _services.GetFullURL(hashLink);
+            if (url != null)
+            {
+                return RedirectPermanent(url);
+            } 
+            else
+            {
+                throw new Exception("Could not find URL");
+            }
         }
     }
 }

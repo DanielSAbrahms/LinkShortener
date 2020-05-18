@@ -24,7 +24,7 @@ namespace LinkShortener.API.Services
                 return new LinkBundles
                 {
                     FullURL = url,
-                    Link = GetLinkFromURL(url)
+                    ShortURL = GetShortURL(url)
                 };
             }
             else
@@ -33,14 +33,14 @@ namespace LinkShortener.API.Services
             }
         }
 
-        public string GetLinkFromURL(string url)
+        public string GetShortURL(string url)
         {
-            return _linkBundles[url].Link;
+            return _linkBundles[url].ShortURL;
         }
 
-        public string GetURLFromLink(string link)
+        public string GetFullURL(string id)
         {
-            return _linkBundles.FirstOrDefault(l => l.Value.Link == link).Key;
+            return _linkBundles.FirstOrDefault(bundle => bundle.Value.ShortURL.EndsWith(id)).Key;
         }
 
         private Dictionary<string, LinkBundles> GetLinks()
@@ -54,9 +54,11 @@ namespace LinkShortener.API.Services
             // Not a good solution due to GetHashCode being platform dependent -> will look for alternative
             LinkBundles newLinkBundle = new LinkBundles
             {
+                Id = Guid.NewGuid(),
                 FullURL = url,
-                Link = string.Format("{0:X}", url.GetHashCode())
-            };
+                ShortURL = "https://localhost:5001/api/Link/" + string.Format("{0:X}", url.GetHashCode()),
+                CreatedAt = DateTime.Now
+        };
             _linkBundles.Add(newLinkBundle.FullURL, newLinkBundle);
 
             return newLinkBundle;

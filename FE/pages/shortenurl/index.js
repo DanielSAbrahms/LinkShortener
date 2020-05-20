@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Button, Paper, TextField, CircularProgress } from "@material-ui/core";
 
+class URLBundle {
+  constructor() {
+    this.fullURL = "";
+    this.shortURL = null;
+  }
+}
+
 function URLForm(props) {
   return (
     <div className="url-input-wrapper">
@@ -43,33 +50,34 @@ function LinkResult(props) {
 
 function LinkShortener() {
   let loading = false;
-  const [url, setURL] = useState("");
-  const [link, setLink] = useState(null);
+  const [urlBundle, setURLBundle] = useState(new URLBundle());
   let formSubmit = (event) => {
     loading = true;
     event.preventDefault();
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json; charset=utf-8" },
-      body: JSON.stringify({ FullURL: url }),
+      body: JSON.stringify(urlBundle),
     };
-    fetch("https://localhost:5001/api/Link/AddLink", requestOptions)
+    fetch("https://localhost:5001/AddLink", requestOptions)
       .then((res) => res.json())
       .then((data) => {
         loading = false;
-        setLink(data.shortURL);
+        setURLBundle({ ...urlBundle, shortURL: data.shortURL });
       });
   };
   return (
     <div className="link-shortener-wrapper">
       <URLForm
         onFormSubmit={formSubmit}
-        onURLChange={(event) => setURL(event.target.value)}
+        onURLChange={(event) =>
+          setURLBundle({ ...urlBundle, fullURL: event.target.value })
+        }
       />
       {loading ? (
         <CircularProgress />
-      ) : link ? (
-        <LinkResult link={link} />
+      ) : urlBundle.shortURL ? (
+        <LinkResult link={urlBundle.shortURL} />
       ) : null}
     </div>
   );

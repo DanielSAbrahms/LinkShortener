@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LinkShortener.API.Controllers
 {
-    [Route("")]
+    [Route("l")]
     [ApiController]
     public class LinkController : ControllerBase
     {
@@ -38,14 +38,17 @@ namespace LinkShortener.API.Controllers
          * It uses a 301 Permenant redirect to tell the browser where to go
          */
         [HttpGet]
-        [Route("{shortLink?}")]
-        public ActionResult<Dictionary<string, LinkBundles>> RedirectFromLink(string? shortLink)
+        [Route("{id?}")]
+        public ActionResult RedirectFromLink(string id)
         {
-            var url = _services.GetFullURL(shortLink);
-            if (url != null)
+            if (id != null)
             {
-                return RedirectPermanent(url);
-            }
+                var url = _services.GetBundleById(id).FullURL;
+                if (url != null)
+                {
+                    return RedirectPermanent(url.AbsoluteUri);
+                }
+            }            
             return new EmptyResult();
         }
     }

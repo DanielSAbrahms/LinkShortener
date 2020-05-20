@@ -8,8 +8,7 @@ namespace LinkShortener.API.Services
 {
     public interface ILinkServices
     {
-        public LinkBundles SubmitURL(string url);
-        public string GetShortURL(string url);
-        public string GetFullURL(string link);
+        public LinkBundles SubmitURL(Uri url);
+        public LinkBundles GetBundleById(string id);
     }
 }

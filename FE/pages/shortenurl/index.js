@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button, Paper, TextField, CircularProgress } from "@material-ui/core";
 
+const apiPath = "https://localhost:5001/l/AddLink/";
+
 class URLBundle {
   constructor() {
     this.fullURL = "";
@@ -59,11 +61,15 @@ function LinkShortener() {
       headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(urlBundle),
     };
-    fetch("https://localhost:5001/AddLink", requestOptions)
-      .then((res) => res.json())
+    fetch(apiPath, requestOptions)
+      .then((res) => {
+        return res.json();
+      })
       .then((data) => {
         loading = false;
-        setURLBundle({ ...urlBundle, shortURL: data.shortURL });
+        if (data) {
+          setURLBundle({ ...urlBundle, shortURL: data.shortURL });
+        }
       });
   };
   return (

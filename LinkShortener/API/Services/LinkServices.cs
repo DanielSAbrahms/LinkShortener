@@ -17,13 +17,14 @@ namespace LinkShortener.API.Services
         }
 
         // uri class **
-        public LinkBundles SubmitURL(string url)
+        public LinkBundles SubmitURL(Uri url)
         {
             // Use uri class for validation of url, etc.
             // If Submitted URL doesn't already exist, add to dictionary
-            if (_linkBundles.ContainsKey(url))
+            LinkBundles existingBundle = _linkBundles.Values.FirstOrDefault(bundle => bundle.FullURL == url);
+            if (existingBundle != null)
             {
-                return _linkBundles[url];
+                return existingBundle;
             }
             else
             {
@@ -31,17 +32,12 @@ namespace LinkShortener.API.Services
             }
         }
 
-        public string GetShortURL(string url)
+        public LinkBundles GetBundleById(string id)
         {
-            return _linkBundles[url].ShortURL;
+            return _linkBundles.FirstOrDefault(bundle => bundle.Key.StartsWith(id)).Value;
         }
 
-        public string GetFullURL(string id)
-        {
-            return _linkBundles.FirstOrDefault(bundle => bundle.Value.ShortURL.EndsWith(id)).Key;
-        }
-
-        private LinkBundles AddURL(string url)
+        private LinkBundles AddURL(Uri url)
         {
             // Uses a GUID to store instance Id and provide the unique Id for short url
             Guid guid = Guid.NewGuid();
@@ -49,10 +45,10 @@ namespace LinkShortener.API.Services
             {
                 Id = guid,
                 FullURL = url,
-                ShortURL = "https://localhost:5001/" + guid.ToString().Substring(0, 8),
+                ShortURL = new Uri("https://localhost:5001/l/" + guid.ToString().Substring(0, 8)),
                 CreatedAt = DateTime.Now
         };
-            _linkBundles.Add(newLinkBundle.FullURL, newLinkBundle);
+            _linkBundles.Add(newLinkBundle.Id.ToString(), newLinkBundle);
 
             return newLinkBundle;
         }

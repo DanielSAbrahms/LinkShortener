@@ -16,6 +16,7 @@ namespace LinkShortener
         {
             services.AddControllers();
             services.AddSingleton<ILinkServices, LinkServices>();
+            // Two others ^^ AddScoped AddTransient
             services.AddCors();
         }
 

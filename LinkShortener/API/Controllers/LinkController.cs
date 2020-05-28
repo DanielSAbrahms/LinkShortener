@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LinkShortener.API.Models;
+﻿using LinkShortener.API.Models;
 using LinkShortener.API.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LinkShortener.API.Controllers
 {
     [Route("l")]
     [ApiController]
+    [Authorize]
     public class LinkController : ControllerBase
     {
         private readonly ILinkServices _services;

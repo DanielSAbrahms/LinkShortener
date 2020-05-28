@@ -38,20 +38,25 @@ function URLForm(props) {
 }
 
 function LinkResult(props) {
-  return (
+  return props.auth ? (
     <Paper elevation={3} className="link-result-wrapper-paper">
+      urlBundle.shortURL ?
       <span>
         Short URL:{" "}
         <a href={props.link} target="_blank">
           {props.link}
         </a>
       </span>
+      : null
     </Paper>
+  ) : (
+    <NotAuthorizedMessage />
   );
 }
 
 function LinkShortener() {
   let loading = false;
+  let authorized = false;
   const [urlBundle, setURLBundle] = useState(new URLBundle());
   let formSubmit = (event) => {
     loading = true;
@@ -63,9 +68,14 @@ function LinkShortener() {
     };
     fetch(apiPath, requestOptions)
       .then((res) => {
-        return res.json();
+        if (res.status === 401) {
+          authorized = false;
+        } else {
+          return res.json();
+        }
       })
       .then((data) => {
+        authorized = true;
         loading = false;
         if (data) {
           setURLBundle({ ...urlBundle, shortURL: data.shortURL });
@@ -83,9 +93,17 @@ function LinkShortener() {
       {loading ? (
         <CircularProgress />
       ) : urlBundle.shortURL ? (
-        <LinkResult link={urlBundle.shortURL} />
+        <LinkResult auth={authorized} link={urlBundle.shortURL} />
       ) : null}
     </div>
+  );
+}
+
+function NotAuthorizedMessage() {
+  return (
+    <Paper elevation={3} className="not-authorized-wrapper-paper">
+      <span>You are not authorized</span>
+    </Paper>
   );
 }
 

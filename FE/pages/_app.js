@@ -1,8 +1,8 @@
-import "../styles.scss";
-import AuthProvider from "./AuthComp";
+/* eslint-disable react/prop-types */
+import "./styles.scss";
 
-function MyApp({ Component, pageProps }) {
+function App({ Component, pageProps }) {
   return <Component {...pageProps} />;
 }
 
-export default withRouter(connect(mapStateToProps, {})(AuthProvider(MyApp)));
+export default App;

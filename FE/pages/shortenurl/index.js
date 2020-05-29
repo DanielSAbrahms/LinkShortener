@@ -1,7 +1,19 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
-import { Button, Paper, TextField, CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
+import URLForm from "./URLForm";
+import LinkResult from "./LinkResult";
+import PathUpdateSuccessfulMessage from "./PathUpdateSuccessfulMessage";
 
-const apiPath = "https://localhost:5001/l/AddLink/";
+const apiPath = {
+  ADD_LINK: "https://localhost:5001/l/AddLink/",
+  SUBMIT_PATH: "https://localhost:5001/l/UpdatePath/",
+};
+
+const requestOptions = {
+  method: "POST",
+  headers: { "Content-Type": "application/json; charset=utf-8" },
+};
 
 class URLBundle {
   constructor() {
@@ -10,100 +22,77 @@ class URLBundle {
   }
 }
 
-function URLForm(props) {
-  return (
-    <div className="url-input-wrapper">
-      <form className="url-form" onSubmit={props.onFormSubmit}>
-        <TextField
-          className="url-text-field"
-          label="Enter URL"
-          variant="outlined"
-          onChange={props.onURLChange}
-          fullWidth
-          xs={12}
-        />
-        <Button
-          className="url-form-submit-button"
-          type="submit"
-          value="Submit"
-          variant="outlined"
-          color="primary"
-          xs={6}
-        >
-          Submit
-        </Button>
-      </form>
-    </div>
-  );
-}
-
-function LinkResult(props) {
-  return props.auth ? (
-    <Paper elevation={3} className="link-result-wrapper-paper">
-      urlBundle.shortURL ?
-      <span>
-        Short URL:{" "}
-        <a href={props.link} target="_blank">
-          {props.link}
-        </a>
-      </span>
-      : null
-    </Paper>
-  ) : (
-    <NotAuthorizedMessage />
-  );
-}
-
 function LinkShortener() {
-  let loading = false;
-  let authorized = false;
+  const [loading, setLoading] = useState(false);
+  const [authorized, setAuthorization] = useState(false);
+  const [pathUpdateSuccessful, setPathUpdateSuccessful] = useState(false);
   const [urlBundle, setURLBundle] = useState(new URLBundle());
-  let formSubmit = (event) => {
-    loading = true;
+  const [customPath, setCustomPath] = useState("");
+
+  let urlSubmit = (event) => {
+    setLoading(true);
+    setPathUpdateSuccessful(false);
     event.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json; charset=utf-8" },
+    fetch(apiPath.ADD_LINK, {
+      ...requestOptions,
       body: JSON.stringify(urlBundle),
-    };
-    fetch(apiPath, requestOptions)
+    })
       .then((res) => {
         if (res.status === 401) {
-          authorized = false;
+          setAuthorization(false);
         } else {
+          setAuthorization(true);
           return res.json();
         }
       })
       .then((data) => {
-        authorized = true;
-        loading = false;
+        setLoading(false);
         if (data) {
           setURLBundle({ ...urlBundle, shortURL: data.shortURL });
         }
       });
   };
+
+  let customPathSubmit = (event) => {
+    setLoading(true);
+    event.preventDefault();
+    fetch(apiPath.SUBMIT_PATH, {
+      ...requestOptions,
+      body: JSON.stringify({ newPath: customPath, linkBundle: urlBundle }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        if (customPath) {
+          setPathUpdateSuccessful(true);
+          setURLBundle({ ...urlBundle, shortURL: data.shortURL });
+        }
+        setLoading(false);
+      });
+  };
+
   return (
     <div className="link-shortener-wrapper">
       <URLForm
-        onFormSubmit={formSubmit}
-        onURLChange={(event) =>
-          setURLBundle({ ...urlBundle, fullURL: event.target.value })
-        }
+        onURLSubmit={urlSubmit}
+        onURLChange={(event) => {
+          setURLBundle({ ...urlBundle, fullURL: event.target.value });
+          setCustomPath("");
+        }}
       />
       {loading ? (
         <CircularProgress />
       ) : urlBundle.shortURL ? (
-        <LinkResult auth={authorized} link={urlBundle.shortURL} />
+        <LinkResult
+          auth={authorized}
+          link={urlBundle.shortURL}
+          onPathSubmit={customPathSubmit}
+          onPathChange={(event) => setCustomPath(event.target.value)}
+        />
       ) : null}
+      {pathUpdateSuccessful ? <PathUpdateSuccessfulMessage /> : null}
     </div>
-  );
-}
-
-function NotAuthorizedMessage() {
-  return (
-    <Paper elevation={3} className="not-authorized-wrapper-paper">
-      <span>You are not authorized</span>
-    </Paper>
   );
 }
 

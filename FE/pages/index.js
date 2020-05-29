@@ -1,4 +1,7 @@
 import Link from "next/link";
+// import AuthProvider from "./AuthComp";
+import { withRouter } from "react-router-dom";
+import { connect } from "react-redux";
 
 function HomePage() {
   return (
@@ -17,4 +20,11 @@ function HomePage() {
   );
 }
 
+function mapStateToProps(state) {
+  return {
+    val: state.val,
+  };
+}
+
+// export default withRouter(connect(mapStateToProps, {})(AuthProvider(HomePage)));
 export default HomePage;

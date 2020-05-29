@@ -2,18 +2,19 @@ import React, { Component } from "react";
 import { msalApp, GRAPH_REQUESTS } from "../auth-utils";
 
 export default (AuthComp) => {
+  // eslint-disable-next-line no-unused-vars
   class AuthProvider extends Component {
     constructor(props) {
       super(props);
-      state = {
-        account: null,
-        error: null,
-      };
     }
+    state = {
+      account: null,
+      error: null,
+    };
 
     async acquireToken(request, redirect) {
       return msalApp.acquireTokenSilent(request).catch((error) => {
-        if (requiresInteraction(error.errorCode)) {
+        if (error.errorCode === "interaction_required") {
           return redirect
             ? msalApp.acquireTokenRedirect(request)
             : msalApp.acquireTokenPopup(request);
